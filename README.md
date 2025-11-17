@@ -14,6 +14,15 @@ Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es
 - **Persistencia de Sesión**: La sesión se guarda en almacenamiento local (AsyncStorage)
 - **Cierre de Sesión**: Los usuarios pueden cerrar sesión desde la aplicación
 
+### Gestor de Tareas (TODO)
+- **Agregar Tareas**: Crear nuevas tareas fácilmente
+- **Marcar Completadas**: Alternar el estado de completado de cada tarea
+- **Eliminar Tareas**: Remover tareas individuales
+- **Limpiar Completados**: Eliminar todas las tareas completadas de una vez
+- **Contadores**: Visualizar cuántas tareas están completadas vs. totales
+- **Validación**: Previene agregar tareas vacías
+- **Interfaz Reactiva**: Interfaz clara y responsiva con tema claro/oscuro
+
 ### Navegación
 - **Navegación Condicional**: La app redirige automáticamente según el estado de autenticación
 - **Pestañas (Tabs)**: Una vez autenticado, acceso a múltiples secciones mediante tabs
@@ -21,7 +30,7 @@ Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es
 
 ### Secciones de la Aplicación
 - **Home**: Pantalla principal con contenido de bienvenida
-- **Explore**: Sección de exploración
+- **TO-DO**: Gestor de tareas con lista de pendientes interactiva
 - **Profile**: Perfil del usuario con opción de cerrar sesión
 
 ## 🏗️ Arquitectura
@@ -37,7 +46,7 @@ eva1-movil/
 │   ├── (tabs)/                  # Rutas protegidas con tabs
 │   │   ├── _layout.tsx          # Layout con navegación de tabs
 │   │   ├── index.tsx            # Pantalla home
-│   │   ├── explore.tsx          # Pantalla de exploración
+│   │   ├── explore.tsx          # Pantalla TODO-DO
 │   │   └── profile.tsx          # Pantalla de perfil
 │   ├── _layout.tsx              # Layout raíz
 │   ├── index.tsx                # Índice
@@ -51,6 +60,11 @@ eva1-movil/
 │   ├── parallax-scroll-view.tsx
 │   ├── themed-text.tsx
 │   ├── themed-view.tsx
+│   ├── to-do/                   # Componentes del gestor TODO
+│   │   ├── TodoApp.tsx          # Contenedor principal del TODO
+│   │   ├── TodoInput.tsx        # Input para agregar nuevas tareas
+│   │   ├── TodoList.tsx         # Lista de tareas
+│   │   └── TodoItem.tsx         # Componente individual de tarea
 │   └── ui/                      # Componentes UI específicos
 │       ├── collapsible.tsx
 │       ├── icon-symbol.tsx
@@ -60,7 +74,8 @@ eva1-movil/
 ├── hooks/                        # Custom hooks
 │   ├── use-color-scheme.ts      # Hook para esquema de colores
 │   ├── use-color-scheme.web.ts  # Versión web del hook
-│   └── use-theme-color.ts       # Hook para colores del tema
+│   ├── use-theme-color.ts       # Hook para colores del tema
+│   └── use-todos.ts             # Hook para gestión de tareas TODO
 ├── assets/                       # Imágenes y recursos
 │   └── images/                  # Imágenes estáticas
 ├── package.json                 # Dependencias y scripts
@@ -83,6 +98,22 @@ Proporciona el contexto de autenticación en toda la aplicación:
 3. Si no existe, muestra la pantalla de login
 4. Al iniciar sesión, guarda el usuario en AsyncStorage
 5. Al cerrar sesión, elimina el usuario del almacenamiento
+
+#### Componentes del TODO (Todo-Do)
+- **TodoApp.tsx**: Componente contenedor principal que integra todo el sistema
+- **TodoInput.tsx**: Componente de entrada para agregar nuevas tareas
+- **TodoList.tsx**: Componente de lista que renderiza todas las tareas
+- **TodoItem.tsx**: Componente individual que representa una tarea con checkbox y botones de acción
+
+#### Hook use-todos.ts
+Custom hook que gestiona toda la lógica del TODO:
+- `addTodo(title)`: Agregar una nueva tarea
+- `removeTodo(id)`: Eliminar una tarea por ID
+- `toggleTodo(id)`: Marcar/desmarcar una tarea como completada
+- `updateTodo(id, title)`: Actualizar el título de una tarea
+- `clearCompleted()`: Eliminar todas las tareas completadas
+- `getTotalCount()`: Obtener el número total de tareas
+- `getCompletedCount()`: Obtener el número de tareas completadas
 
 ## 🛠️ Tecnologías
 
