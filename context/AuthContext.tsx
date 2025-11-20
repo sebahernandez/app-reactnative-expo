@@ -19,9 +19,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Cargar usuario guardado al iniciar
-  useEffect(() => {
-    const loadUser = async () => {
+  // Función para cargar el usuario guardado desde AsyncStorage
+  const loadUser = async () => {
       try {
         const savedUser = await AsyncStorage.getItem('user');
         if (savedUser) {
@@ -37,9 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+  // Cargar usuario guardado al iniciar
+  useEffect(() => {
     loadUser();
   }, []);
 
+  // Función para iniciar sesión
   const login = async (username: string) => {
     const newUser: User = { username };
     setUser(newUser);
@@ -49,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error saving user:', error);
     }
   };
-
+  // Función para cerrar sesión
   const logout = async () => {
     setUser(null);
     try {

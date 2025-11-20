@@ -8,25 +8,40 @@ Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es
 
 ## ✨ Funcionalidades
 
+### 📸 Gestor de Tareas Mejorado (TO-DO)
+
+¡Las tareas ahora son más prácticas y visuales! Ahora puedes:
+
+- **Capturar Fotos**: Toma una foto directamente con la cámara o selecciona una de tu galería mientras creas una tarea. Cada foto se guarda junto con la tarea para que siempre recuerdes el contexto visual.
+
+- **Ubicación Automática**: Cuando captures o selecciones una foto, la app automáticamente registra dónde la tomaste. Verás la dirección y las coordenadas exactas (latitud y longitud) de la ubicación.
+
+- **Visualización de Fotos**: Haz clic en cualquier foto de tus tareas para verla a pantalla completa. Ciérrala con solo tocar la imagen nuevamente.
+
+- **Detalles Completos**: Cada tarea muestra:
+  - La foto que tomaste
+  - El título descriptivo
+  - La ubicación y dirección
+  - Las coordenadas exactas
+  - Fecha y hora de creación
+  - Opción para marcar como completada o eliminar
+
+- **Separación por Usuario**: Tus tareas con fotos están guardadas solo para ti. Cuando cierres sesión e inicies con otro usuario, verá solo sus propias tareas con sus propias fotos y ubicaciones.
+
 ### Autenticación
 - **Sistema de Login**: Pantalla de inicio de sesión con validación de credenciales
-- **Credenciales Demo**: Usuario `admin` con contraseña `1234`
+- **Credenciales Demo**: Usuario `admin` y `user` con contraseña `1234` (dos usuarios para probar la separación de datos)
 - **Persistencia de Sesión**: La sesión se guarda en almacenamiento local (AsyncStorage)
 - **Cierre de Sesión**: Los usuarios pueden cerrar sesión desde la aplicación
 
-### Gestor de Tareas (TODO)
-- **Crear Tareas con Formulario**: Crear nuevas tareas con:
-  - 📝 Título descriptivo
-  - 📷 Foto desde cámara o galería
-  - 📍 Ubicación geolocalizada con dirección
+### Gestor de Tareas (TODO) - Características Técnicas
+- **Crear Tareas con Formulario Completo**: Título, foto y ubicación integrada
 - **Marcar Completadas**: Alternar el estado de completado de cada tarea
 - **Eliminar Tareas**: Remover tareas individuales
 - **Limpiar Completados**: Eliminar todas las tareas completadas de una vez
 - **Contadores**: Visualizar cuántas tareas están completadas vs. totales
-- **Asociación de Usuario**: Las tareas están vinculadas al usuario autenticado y solo son visibles para él
-- **Persistencia Local**: Las tareas se guardan en AsyncStorage
-- **Almacenamiento de Fotos**: Las imágenes se guardan en el sistema de archivos local del dispositivo
-- **Interfaz Reactiva**: Interfaz clara y responsiva con tema claro/oscuro
+- **Persistencia de Datos**: Las tareas se guardan localmente de forma segura
+- **Interfaz Reactiva**: Tema claro/oscuro automático según preferencia del sistema
 
 ### Navegación
 - **Navegación Condicional**: La app redirige automáticamente según el estado de autenticación
@@ -242,10 +257,17 @@ Los permisos se solicitan dinámicamente la primera vez que el usuario intenta u
 
 ## 🔐 Credenciales de Prueba
 
-Para acceder a la aplicación en modo de demostración:
+Para acceder a la aplicación en modo de demostración, puedes usar cualquiera de estos usuarios:
 
+**Usuario 1**
 - **Usuario**: `admin`
 - **Contraseña**: `1234`
+
+**Usuario 2**
+- **Usuario**: `user`
+- **Contraseña**: `1234`
+
+> 💡 Consejo: Prueba iniciar sesión con ambos usuarios para ver cómo cada uno tiene sus propias tareas, fotos y ubicaciones completamente separadas. Es una excelente forma de demostrar la separación de datos.
 
 > ⚠️ Nota: Estas credenciales son solo para propósitos de demostración y desarrollo. No usar en producción.
 
