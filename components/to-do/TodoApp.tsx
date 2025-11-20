@@ -1,22 +1,33 @@
 import { ThemedText } from '@/components/themed-text';
+import { useAuth } from '@/context/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTodos } from '@/hooks/use-todos';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TodoInput } from './TodoInput';
 import { TodoList } from './TodoList';
 
 export const TodoApp: React.FC = () => {
+  const { user } = useAuth();
   const {
     todos,
+    isLoading,
     addTodo,
     removeTodo,
     toggleTodo,
     clearCompleted,
     getTotalCount,
     getCompletedCount,
-  } = useTodos();
+  } = useTodos(user?.username || '');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+
+  if (!user) {
+    return (
+      <View style={styles.center}>
+        <ThemedText>Debes estar autenticado</ThemedText>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -31,26 +42,34 @@ export const TodoApp: React.FC = () => {
         <ThemedText style={styles.subtitle}>
           {getCompletedCount()} / {getTotalCount()} completados
         </ThemedText>
+        <ThemedText style={styles.userInfo}>Usuario: {user.username}</ThemedText>
       </View>
 
-      <TodoInput onAddTodo={addTodo} />
-
-      <TodoList todos={todos} onToggle={toggleTodo} onDelete={removeTodo} />
-
-      {todos.some((todo) => todo.completed) && (
-        <View style={styles.footerContainer}>
-          <TouchableOpacity
-            style={[
-              styles.clearButton,
-              {
-                backgroundColor: isDark ? '#333' : '#e8e8e8',
-              },
-            ]}
-            onPress={clearCompleted}
-            activeOpacity={0.7}>
-            <ThemedText style={styles.clearButtonText}>Limpiar completados</ThemedText>
-          </TouchableOpacity>
+      {isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#4CAF50" />
         </View>
+      ) : (
+        <>
+          <TodoInput onAddTodo={addTodo} />
+          <TodoList todos={todos} onToggle={toggleTodo} onDelete={removeTodo} />
+
+          {todos.some((todo) => todo.completed) && (
+            <View style={styles.footerContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.clearButton,
+                  {
+                    backgroundColor: isDark ? '#333' : '#e8e8e8',
+                  },
+                ]}
+                onPress={clearCompleted}
+                activeOpacity={0.7}>
+                <ThemedText style={styles.clearButtonText}>Limpiar completados</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -59,6 +78,11 @@ export const TodoApp: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     paddingHorizontal: 16,
@@ -71,20 +95,26 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     opacity: 0.7,
+    marginBottom: 6,
+  },
+  userInfo: {
+    fontSize: 12,
+    opacity: 0.5,
   },
   footerContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   clearButton: {
-    paddingVertical: 12,
+    height: 48,
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 32,
   },
   clearButtonText: {
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 15,
   },
 });

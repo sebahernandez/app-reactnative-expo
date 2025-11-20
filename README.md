@@ -15,12 +15,17 @@ Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es
 - **Cierre de Sesión**: Los usuarios pueden cerrar sesión desde la aplicación
 
 ### Gestor de Tareas (TODO)
-- **Agregar Tareas**: Crear nuevas tareas fácilmente
+- **Crear Tareas con Formulario**: Crear nuevas tareas con:
+  - 📝 Título descriptivo
+  - 📷 Foto desde cámara o galería
+  - 📍 Ubicación geolocalizada con dirección
 - **Marcar Completadas**: Alternar el estado de completado de cada tarea
 - **Eliminar Tareas**: Remover tareas individuales
 - **Limpiar Completados**: Eliminar todas las tareas completadas de una vez
 - **Contadores**: Visualizar cuántas tareas están completadas vs. totales
-- **Validación**: Previene agregar tareas vacías
+- **Asociación de Usuario**: Las tareas están vinculadas al usuario autenticado y solo son visibles para él
+- **Persistencia Local**: Las tareas se guardan en AsyncStorage
+- **Almacenamiento de Fotos**: Las imágenes se guardan en el sistema de archivos local del dispositivo
 - **Interfaz Reactiva**: Interfaz clara y responsiva con tema claro/oscuro
 
 ### Navegación
@@ -100,20 +105,37 @@ Proporciona el contexto de autenticación en toda la aplicación:
 5. Al cerrar sesión, elimina el usuario del almacenamiento
 
 #### Componentes del TODO (Todo-Do)
-- **TodoApp.tsx**: Componente contenedor principal que integra todo el sistema
-- **TodoInput.tsx**: Componente de entrada para agregar nuevas tareas
-- **TodoList.tsx**: Componente de lista que renderiza todas las tareas
-- **TodoItem.tsx**: Componente individual que representa una tarea con checkbox y botones de acción
+- **TodoApp.tsx**: Componente contenedor principal que integra todo el sistema y gestiona el usuario autenticado
+- **TodoInput.tsx**: Componente de entrada con formulario completo para:
+  - Título de la tarea
+  - Captura de foto (cámara o galería)
+  - Obtención de ubicación geolocalizada
+- **TodoList.tsx**: Componente de lista que renderiza todas las tareas del usuario actual
+- **TodoItem.tsx**: Componente individual que representa una tarea con:
+  - Foto de la tarea
+  - Checkbox para marcar como completada
+  - Título y ubicación
+  - Fecha y hora de creación
+  - Botón para eliminar
+
+#### Utilidades
+- **imageHandler.ts**: Funciones para manejar:
+  - `pickImageFromCamera()`: Capturar foto con la cámara
+  - `pickImageFromGallery()`: Seleccionar foto de la galería
+- **locationHandler.ts**: Funciones para manejar:
+  - `getCurrentLocation()`: Obtener ubicación actual con coordenadas y dirección inversa
 
 #### Hook use-todos.ts
-Custom hook que gestiona toda la lógica del TODO:
-- `addTodo(title)`: Agregar una nueva tarea
+Custom hook que gestiona toda la lógica del TODO con persistencia en AsyncStorage:
+- `addTodo(title, imageUri?, location?)`: Agregar una nueva tarea con foto y ubicación opcionales
 - `removeTodo(id)`: Eliminar una tarea por ID
 - `toggleTodo(id)`: Marcar/desmarcar una tarea como completada
-- `updateTodo(id, title)`: Actualizar el título de una tarea
 - `clearCompleted()`: Eliminar todas las tareas completadas
 - `getTotalCount()`: Obtener el número total de tareas
 - `getCompletedCount()`: Obtener el número de tareas completadas
+- `loadTodos()`: Cargar tareas del almacenamiento
+
+**Persistencia**: Las tareas se guardan en AsyncStorage con la clave `@eva1_todos` y se filtra automáticamente por usuario.
 
 ## 🛠️ Tecnologías
 
@@ -124,6 +146,9 @@ Custom hook que gestiona toda la lógica del TODO:
 - **React 19.1.0**: Última versión de React
 - **AsyncStorage**: Almacenamiento local persistente
 - **Expo Icons**: Iconos vectoriales (Ionicons, etc.)
+- **Expo Image Picker**: Captura de fotos desde cámara y galería
+- **Expo Location**: Geolocalización y obtención de dirección
+- **Expo File System**: Gestión del sistema de archivos local
 
 ## 🚀 Cómo Levantarse
 
@@ -197,6 +222,23 @@ npm run web           # Abre en navegador
 npm run lint          # Ejecuta ESLint para verificar código
 npm run reset-project # Reinicia el proyecto a estado limpio
 ```
+
+## 📱 Permisos Requeridos
+
+Para que todas las funcionalidades del TODO funcionen correctamente, la app solicita los siguientes permisos:
+
+### iOS
+- **Cámara**: Para capturar fotos directas
+- **Galería/Fotos**: Para seleccionar fotos existentes
+- **Ubicación**: Para obtener la geolocalización actual
+
+### Android
+- `android.permission.CAMERA`: Acceso a la cámara
+- `android.permission.READ_EXTERNAL_STORAGE`: Acceso a la galería
+- `android.permission.ACCESS_FINE_LOCATION`: Ubicación precisa
+- `android.permission.ACCESS_COARSE_LOCATION`: Ubicación aproximada
+
+Los permisos se solicitan dinámicamente la primera vez que el usuario intenta usar cada función.
 
 ## 🔐 Credenciales de Prueba
 

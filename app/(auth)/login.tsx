@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
-const USUARIO = {
-  username: 'admin',
-  password: '1234'
-};
+const USUARIOS = [
+  { username: 'admin', password: '1234' },
+  { username: 'user', password: '1234' }
+];
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
@@ -22,7 +22,11 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = () => {
-    if (username === USUARIO.username && password === USUARIO.password) {
+    const validUser = USUARIOS.find(
+      u => u.username === username && u.password === password
+    );
+    
+    if (validUser) {
       login(username);
       router.replace('/(tabs)');
     } else {
@@ -56,7 +60,8 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       <Text style={styles.hint}>
-        Usuario: admin{'\n'}Contraseña: 1234
+        Usuario: admin | Contraseña: 1234{'\n'}
+        Usuario: user | Contraseña: 1234
       </Text>
     </View>
   );
