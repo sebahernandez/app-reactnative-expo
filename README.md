@@ -1,4 +1,4 @@
-# Eva1 Móvil 📱
+# Eva 2 Móvil 📱
 
 Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es una evaluación 1 (Eva1) que demuestra conceptos de navegación, autenticación y gestión de estado en aplicaciones móviles.
 
