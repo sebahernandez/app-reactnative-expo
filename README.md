@@ -1,294 +1,250 @@
 # Eva1 Móvil 📱
 
-Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es una evaluación 1 (Eva1) que demuestra conceptos de navegación, autenticación y gestión de estado en aplicaciones móviles.
+Aplicación móvil multiplataforma desarrollada con React Native y Expo. Esta es una evaluación 1 (Eva1) que demuestra conceptos de navegación, autenticación basada en endpoints REST, y gestión de estado en aplicaciones móviles.
 
 ## 📋 Descripción General
 
-**Eva1 Móvil** es una aplicación de demostración que implementa un sistema de autenticación básico con navegación entre pantallas. La aplicación permite a los usuarios iniciar sesión y acceder a diferentes secciones de contenido.
+**Eva1 Móvil** es una aplicación de demostración que implementa un sistema de autenticación integrado con un backend real mediante endpoints REST con JWT. Usa Axios para manejar las solicitudes HTTP y los headers CORS automáticamente, sin necesidad de un proxy intermedio.
 
 ## ✨ Funcionalidades
 
+### 🔐 Autenticación Basada en Endpoints REST
+
+La autenticación se integra directamente con un backend real mediante endpoints REST con JWT:
+
+#### Características Principales
+- **Integración con Backend Real**: Se conecta al endpoint `https://todo-list.dobleb.cl/auth/login`
+- **Token JWT**: Almacena tokens de autenticación de forma segura en AsyncStorage
+- **Cliente Axios**: Usa Axios con headers CORS configurados automáticamente
+- **Sesiones Persistentes**: La sesión se mantiene incluso después de cerrar y reabre la app
+- **Validación en Tiempo Real**: Verifica credenciales contra el backend
+- **Manejo de Errores**: Mensajes claros cuando falla la autenticación
+- **Sin Proxy Necesario**: Axios maneja CORS automáticamente
+
+#### Endpoints de Autenticación
+
+```
+POST /auth/login
+  ├─ Request: { email: string, password: string }
+  └─ Response: { success: boolean, data: { user: { id, email, ... }, token: string } }
+```
+
+#### Credenciales de Prueba
+
+Para acceder a la aplicación, usa estas credenciales del backend:
+
+- **Email**: `user@example.com`
+- **Contraseña**: `password123`
+
+#### Flujo de Autenticación
+
+1. **Inicio**: La app carga y verifica si existe un token guardado en AsyncStorage
+2. **Decisión**: 
+   - Si hay token válido → redirige a pantalla de tabs
+   - Si no hay token → muestra pantalla de login
+3. **Login**: 
+   - Usuario ingresa email y contraseña
+   - La app envía POST a `https://todo-list.dobleb.cl/auth/login` usando Axios
+   - Backend valida credenciales y devuelve token JWT + datos del usuario
+4. **Almacenamiento**: Token se guarda en AsyncStorage con clave `authToken`, usuario en clave `user`
+5. **Redirección**: Usuario redirigido automáticamente a pantalla de tabs
+6. **Protección**: Todas las rutas protegidas verifican presencia del token
+7. **Logout**: Token y usuario se eliminan de AsyncStorage, redirige a login
+
 ### 📸 Gestor de Tareas Mejorado (TO-DO)
 
-¡Las tareas ahora son más prácticas y visuales! Ahora puedes:
+Características completas del gestor de tareas:
 
-- **Capturar Fotos**: Toma una foto directamente con la cámara o selecciona una de tu galería mientras creas una tarea. Cada foto se guarda junto con la tarea para que siempre recuerdes el contexto visual.
-
-- **Ubicación Automática**: Cuando captures o selecciones una foto, la app automáticamente registra dónde la tomaste. Verás la dirección y las coordenadas exactas (latitud y longitud) de la ubicación.
-
-- **Visualización de Fotos**: Haz clic en cualquier foto de tus tareas para verla a pantalla completa. Ciérrala con solo tocar la imagen nuevamente.
-
-- **Detalles Completos**: Cada tarea muestra:
-  - La foto que tomaste
-  - El título descriptivo
-  - La ubicación y dirección
-  - Las coordenadas exactas
-  - Fecha y hora de creación
-  - Opción para marcar como completada o eliminar
-
-- **Separación por Usuario**: Tus tareas con fotos están guardadas solo para ti. Cuando cierres sesión e inicies con otro usuario, verá solo sus propias tareas con sus propias fotos y ubicaciones.
-
-### Autenticación
-- **Sistema de Login**: Pantalla de inicio de sesión con validación de credenciales
-- **Credenciales Demo**: Usuario `admin` y `user` con contraseña `1234` (dos usuarios para probar la separación de datos)
-- **Persistencia de Sesión**: La sesión se guarda en almacenamiento local (AsyncStorage)
-- **Cierre de Sesión**: Los usuarios pueden cerrar sesión desde la aplicación
-
-### Gestor de Tareas (TODO) - Características Técnicas
-- **Crear Tareas con Formulario Completo**: Título, foto y ubicación integrada
+- **Capturar Fotos**: Toma una foto directamente con la cámara o selecciona una de tu galería
+- **Ubicación Automática**: Registra la dirección y coordenadas (latitud/longitud) de la ubicación
+- **Visualización de Fotos**: Haz clic en una foto para verla a pantalla completa
+- **Detalles Completos**: Cada tarea muestra foto, título, ubicación, coordenadas, fecha/hora
 - **Marcar Completadas**: Alternar el estado de completado de cada tarea
 - **Eliminar Tareas**: Remover tareas individuales
 - **Limpiar Completados**: Eliminar todas las tareas completadas de una vez
 - **Contadores**: Visualizar cuántas tareas están completadas vs. totales
-- **Persistencia de Datos**: Las tareas se guardan localmente de forma segura
-- **Interfaz Reactiva**: Tema claro/oscuro automático según preferencia del sistema
+- **Persistencia Local**: Las tareas se guardan en AsyncStorage
+- **Separación por Usuario**: Cada usuario ve solo sus propias tareas
 
-### Navegación
-- **Navegación Condicional**: La app redirige automáticamente según el estado de autenticación
-- **Pestañas (Tabs)**: Una vez autenticado, acceso a múltiples secciones mediante tabs
-- **Rutas Basadas en Archivos**: Utiliza Expo Router para navegación declarativa
-
-### Secciones de la Aplicación
-- **Home**: Pantalla principal con contenido de bienvenida
-- **TO-DO**: Gestor de tareas con lista de pendientes interactiva
-- **Profile**: Perfil del usuario con opción de cerrar sesión
-
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura Técnica
 
 ### Estructura del Proyecto
 
 ```
 eva1-movil/
-├── app/                          # Carpeta de rutas (Expo Router)
-│   ├── (auth)/                   # Rutas protegidas de autenticación
-│   │   ├── _layout.tsx          # Layout del grupo de autenticación
-│   │   └── login.tsx            # Pantalla de inicio de sesión
-│   ├── (tabs)/                  # Rutas protegidas con tabs
-│   │   ├── _layout.tsx          # Layout con navegación de tabs
-│   │   ├── index.tsx            # Pantalla home
-│   │   ├── explore.tsx          # Pantalla TODO-DO
-│   │   └── profile.tsx          # Pantalla de perfil
-│   ├── _layout.tsx              # Layout raíz
+├── app/                          # Rutas (Expo Router)
+│   ├── (auth)/
+│   │   ├── _layout.tsx          # Layout de autenticación
+│   │   └── login.tsx            # Pantalla de login
+│   ├── (tabs)/
+│   │   ├── _layout.tsx          # Layout con tabs
+│   │   ├── index.tsx            # Home
+│   │   ├── explore.tsx          # TODO
+│   │   └── profile.tsx          # Perfil
+│   ├── _layout.tsx              # Layout raíz (navegación condicional)
 │   ├── index.tsx                # Índice
-│   └── modal.tsx                # Pantalla modal de ejemplo
-├── context/                      # Contexto de React
-│   └── AuthContext.tsx          # Contexto de autenticación
-├── components/                   # Componentes reutilizables
-│   ├── external-link.tsx
-│   ├── haptic-tab.tsx
-│   ├── hello-wave.tsx
-│   ├── parallax-scroll-view.tsx
-│   ├── themed-text.tsx
-│   ├── themed-view.tsx
-│   ├── to-do/                   # Componentes del gestor TODO
-│   │   ├── TodoApp.tsx          # Contenedor principal del TODO
-│   │   ├── TodoInput.tsx        # Input para agregar nuevas tareas
-│   │   ├── TodoList.tsx         # Lista de tareas
-│   │   └── TodoItem.tsx         # Componente individual de tarea
-│   └── ui/                      # Componentes UI específicos
-│       ├── collapsible.tsx
-│       ├── icon-symbol.tsx
-│       └── icon-symbol.ios.tsx
-├── constants/                    # Constantes de la aplicación
-│   └── theme.ts                 # Configuración de temas
-├── hooks/                        # Custom hooks
-│   ├── use-color-scheme.ts      # Hook para esquema de colores
-│   ├── use-color-scheme.web.ts  # Versión web del hook
-│   ├── use-theme-color.ts       # Hook para colores del tema
-│   └── use-todos.ts             # Hook para gestión de tareas TODO
-├── assets/                       # Imágenes y recursos
-│   └── images/                  # Imágenes estáticas
-├── package.json                 # Dependencias y scripts
-├── app.json                     # Configuración de Expo
-└── tsconfig.json                # Configuración de TypeScript
+│   └── modal.tsx                # Modal de ejemplo
+├── context/
+│   └── AuthContext.tsx          # Contexto de autenticación con endpoints
+├── config/
+│   └── apiConfig.ts             # Endpoints de API por entorno
+├── components/
+│   ├── to-do/                   # Componentes del TODO
+│   │   ├── TodoApp.tsx
+│   │   ├── TodoInput.tsx
+│   │   ├── TodoList.tsx
+│   │   └── TodoItem.tsx
+│   └── ui/                      # Componentes UI
+├── constants/
+│   └── theme.ts                 # Temas
+├── hooks/
+│   ├── use-color-scheme.ts
+│   ├── use-theme-color.ts
+│   └── use-todos.ts
+├── utils/
+│   ├── httpClient.ts            # Cliente HTTP con Axios + CORS headers
+│   ├── imageHandler.ts
+│   └── locationHandler.ts
+├── assets/
+│   └── images/
+├── package.json
+├── app.json
+└── tsconfig.json
 ```
 
 ### Componentes Clave
 
 #### AuthContext.tsx
-Proporciona el contexto de autenticación en toda la aplicación:
-- **Estado**: Maneja el usuario actual y estado de carga
-- **Métodos**: `login()`, `logout()`, validación de autenticación
-- **Persistencia**: Usa AsyncStorage para guardar la sesión del usuario
-- **Hook**: `useAuth()` para acceder al contexto en cualquier componente
+Gestiona toda la lógica de autenticación:
+- **Estado**: Usuario actual, token JWT, estado de carga, bandera de autenticación
+- **Métodos**: 
+  - `login(email, password)` → Valida contra backend, retorna `{success, error?}`
+  - `logout()` → Limpia token y usuario de AsyncStorage
+  - `loadUser()` → Recupera usuario del AsyncStorage al iniciar
+- **Interceptación**: Verifica token al abrir la app
+- **Hook**: `useAuth()` para usar en cualquier componente
 
-#### Flujo de Autenticación
-1. La app verifica si hay un usuario guardado en AsyncStorage
-2. Si existe, redirige a la pantalla de tabs
-3. Si no existe, muestra la pantalla de login
-4. Al iniciar sesión, guarda el usuario en AsyncStorage
-5. Al cerrar sesión, elimina el usuario del almacenamiento
+#### apiConfig.ts
+Configuración centralizada de endpoints:
+- Almacena URLs de desarrollo, staging y producción
+- Define endpoints relativos para login, register, y otros
+- Apunta directamente al backend sin proxy
 
-#### Componentes del TODO (Todo-Do)
-- **TodoApp.tsx**: Componente contenedor principal que integra todo el sistema y gestiona el usuario autenticado
-- **TodoInput.tsx**: Componente de entrada con formulario completo para:
-  - Título de la tarea
-  - Captura de foto (cámara o galería)
-  - Obtención de ubicación geolocalizada
-- **TodoList.tsx**: Componente de lista que renderiza todas las tareas del usuario actual
-- **TodoItem.tsx**: Componente individual que representa una tarea con:
-  - Foto de la tarea
-  - Checkbox para marcar como completada
-  - Título y ubicación
-  - Fecha y hora de creación
-  - Botón para eliminar
+#### httpClient.ts
+Cliente HTTP basado en Axios con interceptores automáticos:
+- **GET, POST, PUT, DELETE, PATCH**: Métodos para todas las operaciones
+- **Headers CORS**: Configurados automáticamente en cada solicitud
+- **Token Automático**: Añade header `Authorization: Bearer <token>` a cada solicitud
+- **Logging**: Imprime solicitudes/respuestas en consola (desarrollo)
+- **Manejo de Errores**: Captura y formatea errores del servidor
 
-#### Utilidades
-- **imageHandler.ts**: Funciones para manejar:
-  - `pickImageFromCamera()`: Capturar foto con la cámara
-  - `pickImageFromGallery()`: Seleccionar foto de la galería
-- **locationHandler.ts**: Funciones para manejar:
-  - `getCurrentLocation()`: Obtener ubicación actual con coordenadas y dirección inversa
-
-#### Hook use-todos.ts
-Custom hook que gestiona toda la lógica del TODO con persistencia en AsyncStorage:
-- `addTodo(title, imageUri?, location?)`: Agregar una nueva tarea con foto y ubicación opcionales
-- `removeTodo(id)`: Eliminar una tarea por ID
-- `toggleTodo(id)`: Marcar/desmarcar una tarea como completada
-- `clearCompleted()`: Eliminar todas las tareas completadas
-- `getTotalCount()`: Obtener el número total de tareas
-- `getCompletedCount()`: Obtener el número de tareas completadas
-- `loadTodos()`: Cargar tareas del almacenamiento
-
-**Persistencia**: Las tareas se guardan en AsyncStorage con la clave `@eva1_todos` y se filtra automáticamente por usuario.
+**Headers CORS configurados**:
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+```
 
 ## 🛠️ Tecnologías
 
-- **React Native**: Framework para desarrollo multiplataforma
-- **Expo**: Herramienta para construir y distribuir apps React Native
+- **React Native**: Framework multiplataforma
+- **Expo**: Herramienta de desarrollo y distribución
 - **Expo Router**: Sistema de rutas basado en archivos
 - **TypeScript**: Lenguaje con tipado estático
 - **React 19.1.0**: Última versión de React
 - **AsyncStorage**: Almacenamiento local persistente
-- **Expo Icons**: Iconos vectoriales (Ionicons, etc.)
-- **Expo Image Picker**: Captura de fotos desde cámara y galería
-- **Expo Location**: Geolocalización y obtención de dirección
-- **Expo File System**: Gestión del sistema de archivos local
+- **Axios**: Cliente HTTP con soporte CORS automático
+- **Expo Image Picker**: Captura de fotos
+- **Expo Location**: Geolocalización
+- **Expo File System**: Gestión de sistema de archivos
 
-## 🚀 Cómo Levantarse
+## 🚀 Cómo Levantar la Aplicación
 
 ### Requisitos Previos
 
-- **Node.js** (v18 o superior recomendado)
+- **Node.js** (v18 o superior)
 - **npm** o **yarn**
 - **Expo CLI** (opcional, se instala con `npx expo`)
+- **Conexión a Internet** (para acceder al backend)
 
-### Instalación
+### Paso 1: Clonar Repositorio
 
-1. **Clonar el repositorio** (si no lo has hecho):
-   ```bash
-   git clone <url-repositorio>
-   cd eva1-movil
-   ```
+```bash
+git clone <url-repositorio>
+cd eva1-movil
+```
 
-2. **Instalar dependencias**:
-   ```bash
-   npm install
-   ```
+### Paso 2: Instalar Dependencias
 
-3. **Instalar Expo CLI globalmente** (opcional pero recomendado):
-   ```bash
-   npm install -g expo-cli
-   ```
+```bash
+npm install
+```
 
-### Ejecutar la Aplicación
-
-#### Opción 1: Modo Desarrollo con Expo Go (Más rápido)
+### Paso 3: Iniciar la App
 
 ```bash
 npm start
 ```
 
-Escanea el código QR con:
-- **iPhone**: Abre la cámara y escanea, luego abre en Expo Go
-- **Android**: Abre Expo Go y escanea el código QR
+Verás un menú de Expo. Elige:
+- **i** → Simulador de iOS
+- **a** → Emulador de Android
+- **w** → Navegador web
+- Escanea el código QR con tu teléfono (debe estar en la misma red WiFi)
 
-#### Opción 2: Simulador de iOS
+### Paso 4: Probar Login
 
-```bash
-npm run ios
-```
+En la pantalla de login, ingresa:
+- **Email**: `user@example.com`
+- **Contraseña**: `password123`
 
-Requisitos: Xcode instalado (solo en macOS)
-
-#### Opción 3: Emulador de Android
-
-```bash
-npm run android
-```
-
-Requisitos: Android Studio y emulador configurado
-
-#### Opción 4: Web
-
-```bash
-npm run web
-```
-
-Abre la app en el navegador por defecto
-
-### Scripts Disponibles
-
-```bash
-npm start              # Inicia el servidor de desarrollo
-npm run ios           # Abre en simulador de iOS
-npm run android       # Abre en emulador de Android
-npm run web           # Abre en navegador
-npm run lint          # Ejecuta ESLint para verificar código
-npm run reset-project # Reinicia el proyecto a estado limpio
-```
+La app debería:
+1. Conectarse directamente a `https://todo-list.dobleb.cl/auth/login` usando Axios
+2. Recibir el token JWT
+3. Guardar el token en AsyncStorage
+4. Redirigir a la pantalla de tabs
 
 ## 📱 Permisos Requeridos
 
-Para que todas las funcionalidades del TODO funcionen correctamente, la app solicita los siguientes permisos:
-
 ### iOS
-- **Cámara**: Para capturar fotos directas
+- **Cámara**: Para capturar fotos
 - **Galería/Fotos**: Para seleccionar fotos existentes
-- **Ubicación**: Para obtener la geolocalización actual
+- **Ubicación**: Para obtener geolocalización
 
 ### Android
-- `android.permission.CAMERA`: Acceso a la cámara
-- `android.permission.READ_EXTERNAL_STORAGE`: Acceso a la galería
-- `android.permission.ACCESS_FINE_LOCATION`: Ubicación precisa
-- `android.permission.ACCESS_COARSE_LOCATION`: Ubicación aproximada
+- `android.permission.CAMERA`
+- `android.permission.READ_EXTERNAL_STORAGE`
+- `android.permission.ACCESS_FINE_LOCATION`
+- `android.permission.ACCESS_COARSE_LOCATION`
 
-Los permisos se solicitan dinámicamente la primera vez que el usuario intenta usar cada función.
+Los permisos se solicitan dinámicamente cuando se usan.
 
-## 🔐 Credenciales de Prueba
+## 🔧 Scripts Disponibles
 
-Para acceder a la aplicación en modo de demostración, puedes usar cualquiera de estos usuarios:
+```bash
+npm start              # Inicia servidor de desarrollo
+npm run ios           # Abre en simulador de iOS
+npm run android       # Abre en emulador de Android
+npm run web           # Abre en navegador
+npm run lint          # Ejecuta ESLint
+npm run reset-project # Reinicia a estado limpio
+```
 
-**Usuario 1**
-- **Usuario**: `admin`
-- **Contraseña**: `1234`
+## 🎨 Temas
 
-**Usuario 2**
-- **Usuario**: `user`
-- **Contraseña**: `1234`
+La aplicación soporta temas claros y oscuros:
+- Hook `useColorScheme()`: Detecta preferencia del sistema
+- Hook `useThemeColor()`: Aplica colores según tema
+- Configurable en `constants/theme.ts`
 
-> 💡 Consejo: Prueba iniciar sesión con ambos usuarios para ver cómo cada uno tiene sus propias tareas, fotos y ubicaciones completamente separadas. Es una excelente forma de demostrar la separación de datos.
-
-> ⚠️ Nota: Estas credenciales son solo para propósitos de demostración y desarrollo. No usar en producción.
-
-## 📁 Variables de Entorno
-
-La aplicación no requiere variables de entorno específicas en la versión actual, pero el archivo `expo-env.d.ts` permite tipado de TypeScript para variables de entorno si se necesitan en el futuro.
-
-## 🎨 Temas y Estilos
-
-La aplicación incluye soporte para temas claros y oscuros:
-- Hook `useColorScheme()`: Detecta la preferencia del sistema
-- Hook `useThemeColor()`: Aplica colores según el tema
-- Tema configurable en `constants/theme.ts`
-
-## 🧪 Linting y Calidad de Código
+## 🧪 Linting
 
 ```bash
 npm run lint
 ```
 
-La aplicación usa ESLint con la configuración de Expo para mantener la calidad del código.
+Usa ESLint para mantener calidad de código.
 
 ## 📚 Recursos Útiles
 
@@ -296,6 +252,8 @@ La aplicación usa ESLint con la configuración de Expo para mantener la calidad
 - [Documentación de Expo Router](https://docs.expo.dev/router/introduction/)
 - [React Native Documentation](https://reactnative.dev/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Axios Documentation](https://axios-http.com/)
+- [Backend API](https://todo-list.dobleb.cl/)
 
 ## 🤝 Contribuciones
 
@@ -307,5 +265,5 @@ Proyecto privado - Evaluación académica
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: Noviembre 2025
+**Versión**: 2.1.0 (Con Axios + CORS headers automáticos, sin proxy)  
+**Última actualización**: Diciembre 2025

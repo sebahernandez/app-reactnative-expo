@@ -1,13 +1,22 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchUser } = useAuth();
   const router = useRouter();
 
+  // Cargar datos del usuario al montar el componente (solo una vez)
+  useEffect(() => {
+    console.log('[Profile] Pantalla de perfil montada');
+    console.log('[Profile] Usuario actual:', JSON.stringify(user, null, 2));
+    fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar el componente
+
   const handleLogout = () => {
+    console.log('[Profile] Cerrando sesión');
     logout();
     router.replace('/(auth)/login');
   };
@@ -19,15 +28,34 @@ export default function ProfileScreen() {
           <Text style={styles.avatar}>👤</Text>
         </View>
 
-        <Text style={styles.username}>{user?.username}</Text>
+        <Text style={styles.username}>
+          {user?.name || user?.email || 'Usuario'}
+        </Text>
+
         <View style={styles.infoSection}>
-          <Text style={styles.label}>Usuario:</Text>
-          <Text style={styles.value}>{user?.username}</Text>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.value}>{user?.email || 'No disponible'}</Text>
         </View>
+
+        {user?.name && (
+          <View style={styles.infoSection}>
+            <Text style={styles.label}>Nombre:</Text>
+            <Text style={styles.value}>{user.name}</Text>
+          </View>
+        )}
+
+        {(user?.id || user?.userId) && (
+          <View style={styles.infoSection}>
+            <Text style={styles.label}>ID de Usuario:</Text>
+            <Text style={styles.value}>{user.id || user.userId}</Text>
+          </View>
+        )}
 
         <View style={styles.infoSection}>
           <Text style={styles.label}>Estado:</Text>
-          <Text style={styles.value}>Autenticado</Text>
+          <Text style={styles.value}>
+            {user ? '✓ Autenticado' : '⚠ Sin datos de usuario'}
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -54,10 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
   },
   avatarContainer: {

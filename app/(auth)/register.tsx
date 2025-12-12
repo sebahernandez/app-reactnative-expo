@@ -1,42 +1,64 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { getRegisterService } from '../../services/auth-register';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const router = useRouter();
+  const { fetchUser } = useAuth();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+  const handleRegister = async () => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Por favor completa todos los campos');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     setIsLoading(true);
-    const result = await login(email, password);
+    const registerService = getRegisterService();
+    const result = await registerService.register({ email, password });
     setIsLoading(false);
 
     if (result.success) {
-      router.replace('/(tabs)');
+      console.log('[Register] Registro exitoso, cargando datos de usuario...');
+      // Cargar datos del usuario recién registrado
+      await fetchUser();
+
+      Alert.alert('Éxito', 'Usuario registrado correctamente', [
+        {
+          text: 'OK',
+          onPress: () => router.replace('/(tabs)'),
+        },
+      ]);
     } else {
-      Alert.alert("Error", result.error || "Usuario o contraseña incorrectos");
+      Alert.alert('Error', result.error || 'Error al registrar el usuario');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
+      <Text style={styles.title}>Crear Cuenta</Text>
 
       <TextInput
         style={styles.input}
@@ -58,25 +80,29 @@ export default function LoginScreen() {
         editable={!isLoading}
       />
 
-      <TouchableOpacity 
-        style={[styles.button, isLoading && styles.buttonDisabled]} 
-        onPress={handleLogin}
+      <TextInput
+        style={styles.input}
+        placeholder="Confirmar Contraseña"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        autoCapitalize="none"
+        editable={!isLoading}
+      />
+
+      <TouchableOpacity
+        style={[styles.button, isLoading && styles.buttonDisabled]}
+        onPress={handleRegister}
         disabled={isLoading}
       >
         <Text style={styles.buttonText}>
-          {isLoading ? 'Cargando...' : 'Entrar'}
+          {isLoading ? 'Registrando...' : 'Registrarse'}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('./register')} disabled={isLoading}>
-        <Text style={styles.linkText}>Registrar usuario</Text>
+      <TouchableOpacity onPress={() => router.back()} disabled={isLoading}>
+        <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
       </TouchableOpacity>
-
-      <Text style={styles.hint}>
-        Usuario de prueba:{'\n'}
-        Email: user@example.com{'\n'}
-        Contraseña: password123
-      </Text>
     </View>
   );
 }
@@ -122,12 +148,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  hint: {
-    marginTop: 20,
-    textAlign: 'center',
-    color: '#666',
-    fontSize: 14,
   },
   linkText: {
     marginTop: 20,

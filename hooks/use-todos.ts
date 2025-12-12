@@ -1,5 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
+import { getImageService } from '../services/image-service';
+import { getImageService as getImageSvc, getTodoService } from '../services';
+import type { Todo as ApiTodo, TodoLocation as ApiTodoLocation } from '../services';
 
 export interface TodoLocation {
   latitude: number;
@@ -15,9 +17,9 @@ export interface Todo {
   username: string;
   completed: boolean;
   createdAt: string;
+  photoUri?: string;
+  updatedAt?: string;
 }
-
-const STORAGE_KEY = '@eva1_todos';
 
 export const useTodos = (currentUsername: string) => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -26,87 +28,172 @@ export const useTodos = (currentUsername: string) => {
   const loadTodos = useCallback(async () => {
     try {
       setIsLoading(true);
-      const storedTodos = await AsyncStorage.getItem(STORAGE_KEY);
-      if (storedTodos) {
-        const allTodos = JSON.parse(storedTodos) as Todo[];
-        // Filtrar solo las tareas del usuario actual
-        const userTodos = allTodos.filter((todo) => todo.username === currentUsername);
-        setTodos(userTodos);
+      console.log('[useTodos] Cargando tareas desde la API...');
+
+      const todoService = getTodoService();
+      const result = await todoService.getTodos();
+
+      if (result.success && result.data) {
+        // Convertir TODOs de la API al formato del hook
+        const mappedTodos: Todo[] = result.data.map((apiTodo) => ({
+          id: apiTodo.id,
+          title: apiTodo.title,
+          completed: apiTodo.completed,
+          imageUri: apiTodo.photoUri,
+          photoUri: apiTodo.photoUri,
+          location: apiTodo.location,
+          username: currentUsername,
+          createdAt: apiTodo.createdAt,
+          updatedAt: apiTodo.updatedAt,
+        }));
+
+        console.log(`[useTodos] ${mappedTodos.length} tareas cargadas`);
+        setTodos(mappedTodos);
+      } else {
+        console.error('[useTodos] Error al cargar tareas:', result.error);
+        setTodos([]);
       }
     } catch (error) {
-      console.error('Error cargando tareas:', error);
+      console.error('[useTodos] Error cargando tareas:', error);
+      setTodos([]);
     } finally {
       setIsLoading(false);
     }
   }, [currentUsername]);
 
-  // Cargar tareas desde AsyncStorage al montar el componente
+  // Cargar tareas desde la API al montar el componente
   useEffect(() => {
     loadTodos();
   }, [loadTodos]);
 
-  const saveTodos = useCallback(
-    async (newTodos: Todo[]) => {
-      try {
-        // Obtener todas las tareas de todos los usuarios
-        const storedTodos = await AsyncStorage.getItem(STORAGE_KEY);
-        const allTodos = storedTodos ? JSON.parse(storedTodos) : [];
-
-        // Reemplazar las tareas del usuario actual
-        const otherUsersTodos = allTodos.filter((todo: Todo) => todo.username !== currentUsername);
-        const updatedAllTodos = [...otherUsersTodos, ...newTodos];
-
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAllTodos));
-        setTodos(newTodos);
-      } catch (error) {
-        console.error('Error guardando tareas:', error);
-      }
-    },
-    [currentUsername]
-  );
-
   const addTodo = useCallback(
-    (title: string, imageUri?: string, location?: TodoLocation) => {
+    async (title: string, imageUri?: string, location?: TodoLocation) => {
       if (title.trim() === '') return;
 
-      const newTodo: Todo = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        imageUri,
-        location,
-        username: currentUsername,
-        completed: false,
-        createdAt: new Date().toISOString(),
-      };
+      try {
+        console.log('[useTodos] Creando nueva tarea...');
 
-      const updatedTodos = [newTodo, ...todos];
-      saveTodos(updatedTodos);
+        let photoUri = imageUri;
+
+        // Si hay una imagen, subirla primero
+        if (imageUri) {
+          console.log('[useTodos] Subiendo imagen...');
+          const imageService = getImageSvc();
+          const uploadResult = await imageService.uploadImage(imageUri);
+
+          if (uploadResult.success && uploadResult.imageUrl) {
+            photoUri = uploadResult.imageUrl;
+            console.log('[useTodos] Imagen subida:', photoUri);
+          } else {
+            console.error('[useTodos] Error al subir imagen:', uploadResult.error);
+            // Continuar sin imagen si falla la subida
+            photoUri = undefined;
+          }
+        }
+
+        const todoService = getTodoService();
+        const result = await todoService.createTodo({
+          title: title.trim(),
+          completed: false,
+          location: location ? { latitude: location.latitude, longitude: location.longitude } : undefined,
+          photoUri,
+        });
+
+        if (result.success && result.data) {
+          console.log('[useTodos] Tarea creada exitosamente');
+          // Recargar todas las tareas para obtener la lista actualizada
+          await loadTodos();
+        } else {
+          console.error('[useTodos] Error al crear tarea:', result.error);
+        }
+      } catch (error) {
+        console.error('[useTodos] Error al agregar tarea:', error);
+      }
     },
-    [todos, currentUsername, saveTodos]
+    [loadTodos]
   );
 
   const removeTodo = useCallback(
-    (id: string) => {
-      const updatedTodos = todos.filter((todo) => todo.id !== id);
-      saveTodos(updatedTodos);
+    async (id: string) => {
+      try {
+        console.log(`[useTodos] Eliminando tarea ${id}...`);
+        const todoService = getTodoService();
+        const result = await todoService.deleteTodo(id);
+
+        if (result.success) {
+          console.log('[useTodos] Tarea eliminada exitosamente');
+          // Actualizar el estado local inmediatamente para mejor UX
+          setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+        } else {
+          console.error('[useTodos] Error al eliminar tarea:', result.error);
+        }
+      } catch (error) {
+        console.error('[useTodos] Error al eliminar tarea:', error);
+      }
     },
-    [todos, saveTodos]
+    []
   );
 
   const toggleTodo = useCallback(
-    (id: string) => {
-      const updatedTodos = todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      );
-      saveTodos(updatedTodos);
+    async (id: string) => {
+      try {
+        console.log(`[useTodos] Alternando estado de tarea ${id}...`);
+
+        // Encontrar la tarea actual
+        const todo = todos.find((t) => t.id === id);
+        if (!todo) {
+          console.error('[useTodos] Tarea no encontrada');
+          return;
+        }
+
+        // Actualizar el estado local inmediatamente para mejor UX
+        setTodos((prevTodos) =>
+          prevTodos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+        );
+
+        const todoService = getTodoService();
+        const result = await todoService.updateTodo(id, {
+          completed: !todo.completed,
+        });
+
+        if (result.success) {
+          console.log('[useTodos] Tarea actualizada exitosamente');
+        } else {
+          console.error('[useTodos] Error al actualizar tarea:', result.error);
+          // Revertir el cambio local si falla
+          setTodos((prevTodos) =>
+            prevTodos.map((t) => (t.id === id ? { ...t, completed: todo.completed } : t))
+          );
+        }
+      } catch (error) {
+        console.error('[useTodos] Error al alternar tarea:', error);
+      }
     },
-    [todos, saveTodos]
+    [todos]
   );
 
-  const clearCompleted = useCallback(() => {
-    const updatedTodos = todos.filter((todo) => !todo.completed);
-    saveTodos(updatedTodos);
-  }, [todos, saveTodos]);
+  const clearCompleted = useCallback(async () => {
+    try {
+      console.log('[useTodos] Eliminando tareas completadas...');
+      const completedTodos = todos.filter((todo) => todo.completed);
+
+      const todoService = getTodoService();
+
+      // Eliminar todas las tareas completadas
+      const deletePromises = completedTodos.map((todo) =>
+        todoService.deleteTodo(todo.id)
+      );
+
+      await Promise.all(deletePromises);
+
+      console.log('[useTodos] Tareas completadas eliminadas');
+
+      // Actualizar el estado local
+      setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
+    } catch (error) {
+      console.error('[useTodos] Error al eliminar tareas completadas:', error);
+    }
+  }, [todos]);
 
   const getTotalCount = () => todos.length;
   const getCompletedCount = () => todos.filter((todo) => todo.completed).length;
