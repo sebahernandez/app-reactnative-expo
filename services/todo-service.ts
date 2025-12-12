@@ -1,17 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance } from 'axios';
 
-/**
- * Estructura de ubicación de un TODO
- */
 export interface TodoLocation {
   latitude: number;
   longitude: number;
 }
-
-/**
- * Estructura de un TODO
- */
 export interface Todo {
   id: string;
   userId: string;
@@ -22,10 +15,6 @@ export interface Todo {
   createdAt: string;
   updatedAt: string;
 }
-
-/**
- * Datos para crear un TODO
- */
 export interface CreateTodoData {
   title: string;
   completed?: boolean;
@@ -33,9 +22,6 @@ export interface CreateTodoData {
   photoUri?: string;
 }
 
-/**
- * Datos para actualizar un TODO (PATCH - parcial)
- */
 export interface UpdateTodoData {
   title?: string;
   completed?: boolean;
@@ -43,18 +29,12 @@ export interface UpdateTodoData {
   photoUri?: string;
 }
 
-/**
- * Respuesta de la API para operaciones de TODO
- */
 interface TodoApiResponse {
   success: boolean;
   data?: Todo;
   error?: string;
 }
 
-/**
- * Respuesta de la API para listar TODOs
- */
 interface TodoListApiResponse {
   success: boolean;
   data?: Todo[];
@@ -62,9 +42,6 @@ interface TodoListApiResponse {
   error?: string;
 }
 
-/**
- * Respuesta del servicio
- */
 export interface TodoServiceResponse<T = Todo> {
   success: boolean;
   data?: T;
@@ -79,9 +56,6 @@ export interface TodoService {
   deleteTodo: (id: string) => Promise<TodoServiceResponse<Todo>>;
 }
 
-/**
- * Crear instancia de Axios para peticiones a la API
- */
 function createApiClient(): AxiosInstance {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://todo-list.dobleb.cl';
 
@@ -93,7 +67,6 @@ function createApiClient(): AxiosInstance {
     },
   });
 
-  // Interceptor: Agregar token a las peticiones
   api.interceptors.request.use(async (config) => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
@@ -102,7 +75,6 @@ function createApiClient(): AxiosInstance {
     return config;
   });
 
-  // Interceptor: Manejar errores
   api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -114,17 +86,11 @@ function createApiClient(): AxiosInstance {
   return api;
 }
 
-/**
- * Obtener servicio de TODO con todos los métodos
- */
 export function getTodoService(): TodoService {
   const api = createApiClient();
   const TODOS_ENDPOINT = '/todos';
 
   return {
-    /**
-     * Obtener todas las tareas del usuario autenticado
-     */
     async getTodos(): Promise<TodoServiceResponse<Todo[]>> {
       try {
         console.log('[TodoService] Obteniendo todas las tareas...');
@@ -148,9 +114,6 @@ export function getTodoService(): TodoService {
       }
     },
 
-    /**
-     * Obtener una tarea específica por ID
-     */
     async getTodo(id: string): Promise<TodoServiceResponse<Todo>> {
       try {
         console.log(`[TodoService] Obteniendo tarea ${id}...`);
@@ -171,9 +134,6 @@ export function getTodoService(): TodoService {
       }
     },
 
-    /**
-     * Crear una nueva tarea
-     */
     async createTodo(todoData: CreateTodoData): Promise<TodoServiceResponse<Todo>> {
       try {
         console.log('[TodoService] Creando nueva tarea:', todoData);
@@ -197,9 +157,6 @@ export function getTodoService(): TodoService {
       }
     },
 
-    /**
-     * Actualizar una tarea parcialmente (PATCH)
-     */
     async updateTodo(id: string, todoData: UpdateTodoData): Promise<TodoServiceResponse<Todo>> {
       try {
         console.log(`[TodoService] Actualizando tarea ${id}:`, todoData);
@@ -221,9 +178,6 @@ export function getTodoService(): TodoService {
       }
     },
 
-    /**
-     * Eliminar una tarea
-     */
     async deleteTodo(id: string): Promise<TodoServiceResponse<Todo>> {
       try {
         console.log(`[TodoService] Eliminando tarea ${id}...`);

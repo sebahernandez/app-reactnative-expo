@@ -21,9 +21,6 @@ interface UserService {
   clearUser: () => Promise<void>;
 }
 
-/**
- * Create axios instance for API requests
- */
 function createApiClient(): AxiosInstance {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://todo-list.dobleb.cl';
 
@@ -44,7 +41,6 @@ function createApiClient(): AxiosInstance {
     return config;
   });
 
-  // Interceptor: Handle errors
   api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -56,18 +52,14 @@ function createApiClient(): AxiosInstance {
   return api;
 }
 
-/**
- * Get user service object with user-related methods
- */
+
 export function getUserService(): UserService {
   const api = createApiClient();
   const ME_ENDPOINT = '/users/me';
   const USER_STORAGE_KEY = 'authUser';
 
   return {
-    /**
-     * Fetch current user information from API
-     */
+
     async getMe(): Promise<UserResponse> {
       try {
         console.log('[UserService] Obteniendo información del usuario desde:', ME_ENDPOINT);
@@ -102,9 +94,6 @@ export function getUserService(): UserService {
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
     },
 
-    /**
-     * Get stored user from local storage
-     */
     async getStoredUser(): Promise<User | null> {
       try {
         const userData = await AsyncStorage.getItem(USER_STORAGE_KEY);
@@ -121,9 +110,6 @@ export function getUserService(): UserService {
       }
     },
 
-    /**
-     * Clear user from storage
-     */
     async clearUser(): Promise<void> {
       await AsyncStorage.removeItem(USER_STORAGE_KEY);
     },

@@ -50,7 +50,6 @@ function createApiClient(): AxiosInstance {
     },
   });
 
-  // Interceptor: Add token to requests
   api.interceptors.request.use(async (config) => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
@@ -59,7 +58,6 @@ function createApiClient(): AxiosInstance {
     return config;
   });
 
-  // Interceptor: Handle errors
   api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -86,14 +84,10 @@ export function getAuthService(): AuthService {
         const token = data.data?.token;
         const userFromApi = data.data?.user;
 
-        // Solo guardar token si existe
         if (token) {
           await AsyncStorage.setItem('authToken', token);
           console.log('[Auth] Token guardado exitosamente');
         }
-
-        // Extraer datos del usuario de la respuesta del login
-        // La respuesta tiene estructura: { data: { user: {...}, token: "..." } }
         const userData = {
           id: userFromApi?.id,
           email: userFromApi?.email || credentials.email,
@@ -102,15 +96,12 @@ export function getAuthService(): AuthService {
 
         console.log('[Auth] Datos del usuario extraídos:', JSON.stringify(userData, null, 2));
 
-        // Guardar información del usuario
         if (userData.id && userData.email) {
           await AsyncStorage.setItem('authUser', JSON.stringify(userData));
           console.log('[Auth] Datos de usuario guardados en AsyncStorage');
         } else {
           console.warn('[Auth] Advertencia: Datos de usuario incompletos', userData);
         }
-
-        // Si llegó a este punto sin error, el login fue exitoso
         return { success: true, userData };
       } catch (error: any) {
         console.error('[Login Error]:', error.message);

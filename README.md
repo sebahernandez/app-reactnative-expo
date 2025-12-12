@@ -10,6 +10,7 @@
 **Institución:** IPSS - Instituto Profesional San Sebastián <br>
 **Integrantes:** Sebastián Lagos - María Jose Reichel <br>
 **Rol de integrantes:** Sebastian Lagos (Arquitectura de software y servicios) - María Jose Reichel(Frontend) <br>
+**Utilizacion de IA:** Para generación de documentación y refactor de codigo en peticiones axios.
 
 ## 📖 Descripción General
 

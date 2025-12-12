@@ -1,9 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance } from 'axios';
 
-/**
- * Respuesta de la API para subida de imagen
- */
+
 interface ImageUploadApiResponse {
   success: boolean;
   data?: {
@@ -18,9 +16,6 @@ interface ImageUploadApiResponse {
   error?: string;
 }
 
-/**
- * Respuesta del servicio de imágenes
- */
 export interface ImageServiceResponse {
   success: boolean;
   imageUrl?: string;
@@ -34,9 +29,6 @@ export interface ImageService {
   deleteImage: (userId: string, imageId: string) => Promise<ImageServiceResponse>;
 }
 
-/**
- * Crear instancia de Axios para peticiones a la API
- */
 function createApiClient(): AxiosInstance {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://todo-list.dobleb.cl';
 
@@ -48,7 +40,6 @@ function createApiClient(): AxiosInstance {
     },
   });
 
-  // Interceptor: Agregar token a las peticiones
   api.interceptors.request.use(async (config) => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
@@ -57,7 +48,6 @@ function createApiClient(): AxiosInstance {
     return config;
   });
 
-  // Interceptor: Manejar errores
   api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -69,9 +59,6 @@ function createApiClient(): AxiosInstance {
   return api;
 }
 
-/**
- * Obtener servicio de imágenes
- */
 export function getImageService(): ImageService {
   const api = createApiClient();
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://todo-list.dobleb.cl';

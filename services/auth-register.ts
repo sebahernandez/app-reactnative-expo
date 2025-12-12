@@ -30,9 +30,6 @@ interface RegisterService {
   register: (credentials: RegisterCredentials) => Promise<RegisterResponse>;
 }
 
-/**
- * Create axios instance for authentication requests
- */
 function createApiClient(): AxiosInstance {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://todo-list.dobleb.cl';
 
@@ -44,7 +41,6 @@ function createApiClient(): AxiosInstance {
     },
   });
 
-  // Interceptor: Add token to requests
   api.interceptors.request.use(async (config) => {
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
@@ -53,7 +49,6 @@ function createApiClient(): AxiosInstance {
     return config;
   });
 
-  // Interceptor: Handle errors
   api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -65,17 +60,12 @@ function createApiClient(): AxiosInstance {
   return api;
 }
 
-/**
- * Get register service object with registration method
- */
 export function getRegisterService(): RegisterService {
   const api = createApiClient();
   const REGISTER_ENDPOINT = '/auth/register';
 
   return {
-    /**
-     * Register user with email and password
-     */
+
     async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
       try {
         const { data } = await api.post<RegisterApiResponse>(REGISTER_ENDPOINT, credentials);
