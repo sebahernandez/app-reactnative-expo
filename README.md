@@ -2,14 +2,14 @@
 
 ## 📋 Información del Proyecto
 
-**Nombre:** Eva1 Móvil
-**Versión:** 1.0.0
-**Tipo:** Aplicación Móvil Multiplataforma
-**Desarrollado con:** React Native + Expo + TypeScript
-**Fecha:** Diciembre 2025
-**Institución:** IPSS - Instituto Profesional San Sebastián
-**Integrantes:** Sebastián Lagos - María Jose Reichel 
-**Rol de integrantes:** Sebastian Lagos (Arquitectura de software y servicios) - María Jose Reichel(Frontend)
+**Nombre:** Eva1 Móvil <br>
+**Versión:** 1.0.0 <br>
+**Tipo:** Aplicación Móvil Multiplataforma <br>
+**Desarrollado con:** React Native + Expo + TypeScript <br>
+**Fecha:** Diciembre 2025 <br>
+**Institución:** IPSS - Instituto Profesional San Sebastián <br>
+**Integrantes:** Sebastián Lagos - María Jose Reichel <br>
+**Rol de integrantes:** Sebastian Lagos (Arquitectura de software y servicios) - María Jose Reichel(Frontend) <br>
 
 ## 📖 Descripción General
 
