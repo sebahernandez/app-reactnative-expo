@@ -113,6 +113,52 @@ export const useTodos = (currentUsername: string) => {
     [loadTodos]
   );
 
+  const updateTodo = useCallback(
+    async (id: string, title?: string, imageUri?: string, location?: TodoLocation) => {
+      try {
+        console.log(`[useTodos] Actualizando tarea ${id}...`);
+
+        let photoUri: string | undefined = undefined;
+
+        // Si hay una nueva imagen, subirla primero
+        if (imageUri) {
+          console.log('[useTodos] Subiendo nueva imagen...');
+          const imageService = getImageSvc();
+          const uploadResult = await imageService.uploadImage(imageUri);
+
+          if (uploadResult.success && uploadResult.imageUrl) {
+            photoUri = uploadResult.imageUrl;
+            console.log('[useTodos] Nueva imagen subida:', photoUri);
+          } else {
+            console.error('[useTodos] Error al subir nueva imagen:', uploadResult.error);
+          }
+        }
+
+        const todoService = getTodoService();
+        const updateData: any = {};
+
+        if (title !== undefined) updateData.title = title.trim();
+        if (photoUri !== undefined) updateData.photoUri = photoUri;
+        if (location !== undefined) {
+          updateData.location = { latitude: location.latitude, longitude: location.longitude };
+        }
+
+        const result = await todoService.updateTodo(id, updateData);
+
+        if (result.success && result.data) {
+          console.log('[useTodos] Tarea actualizada exitosamente');
+          // Recargar todas las tareas para obtener la lista actualizada
+          await loadTodos();
+        } else {
+          console.error('[useTodos] Error al actualizar tarea:', result.error);
+        }
+      } catch (error) {
+        console.error('[useTodos] Error al actualizar tarea:', error);
+      }
+    },
+    [loadTodos]
+  );
+
   const removeTodo = useCallback(
     async (id: string) => {
       try {
@@ -202,6 +248,7 @@ export const useTodos = (currentUsername: string) => {
     todos,
     isLoading,
     addTodo,
+    updateTodo,
     removeTodo,
     toggleTodo,
     clearCompleted,

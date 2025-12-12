@@ -1,22 +1,33 @@
 import { ThemedText } from '@/components/themed-text';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Todo } from '@/hooks/use-todos';
+import { Todo, TodoLocation } from '@/hooks/use-todos';
 import { useState } from 'react';
 import { Image, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TodoEditModal } from './TodoEditModal';
 
 interface TodoItemProps {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, title: string, imageUri?: string, location?: TodoLocation) => void;
 }
 
-export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) => {
+export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   return (
     <>
+      {/* Modal para editar TODO */}
+      <TodoEditModal
+        visible={editModalVisible}
+        todo={todo}
+        onClose={() => setEditModalVisible(false)}
+        onSave={onEdit}
+      />
+
       {/* Modal para ver foto a pantalla completa */}
       <Modal
         visible={imageModalVisible}
@@ -104,13 +115,24 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) 
         </ThemedText>
       </View>
 
-      {/* Botón eliminar */}
-      <TouchableOpacity
-        style={[styles.deleteButton, { backgroundColor: '#ff6b6b' }]}
-        onPress={() => onDelete(todo.id)}
-        activeOpacity={0.7}>
-        <ThemedText style={styles.deleteButtonText}>×</ThemedText>
-      </TouchableOpacity>
+      {/* Botones de acción */}
+      <View style={styles.actionButtons}>
+        {/* Botón editar */}
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
+          onPress={() => setEditModalVisible(true)}
+          activeOpacity={0.7}>
+          <ThemedText style={styles.actionButtonText}>✎</ThemedText>
+        </TouchableOpacity>
+
+        {/* Botón eliminar */}
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#ff6b6b' }]}
+          onPress={() => onDelete(todo.id)}
+          activeOpacity={0.7}>
+          <ThemedText style={styles.actionButtonText}>×</ThemedText>
+        </TouchableOpacity>
+      </View>
       </View>
     </>
   );
@@ -181,17 +203,21 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     marginTop: 6,
   },
-  deleteButton: {
+  actionButtons: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    top: 12,
-    right: 12,
   },
-  deleteButtonText: {
+  actionButtonText: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',

@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
-import type { Todo } from '@/hooks/use-todos';
+import type { Todo, TodoLocation } from '@/hooks/use-todos';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { TodoItem } from './TodoItem';
 
@@ -7,9 +7,10 @@ interface TodoListProps {
   todos: Todo[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, title: string, imageUri?: string, location?: TodoLocation) => void;
 }
 
-export const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete }) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete, onEdit }) => {
   return (
     <View style={styles.container}>
       {todos.length === 0 ? (
@@ -22,7 +23,7 @@ export const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete })
           data={todos}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TodoItem todo={item} onToggle={onToggle} onDelete={onDelete} />
+            <TodoItem todo={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
           )}
           scrollEnabled={false}
         />

@@ -2,7 +2,7 @@
 
 ## 📋 Información del Proyecto
 
-**Nombre:** Eva1 Móvil <br>
+**Nombre:** Eva 3 <br>
 **Versión:** 1.0.0 <br>
 **Tipo:** Aplicación Móvil Multiplataforma <br>
 **Desarrollado con:** React Native + Expo + TypeScript <br>

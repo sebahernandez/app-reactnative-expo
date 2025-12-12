@@ -12,6 +12,7 @@ export const TodoApp: React.FC = () => {
     todos,
     isLoading,
     addTodo,
+    updateTodo,
     removeTodo,
     toggleTodo,
     clearCompleted,
@@ -52,7 +53,7 @@ export const TodoApp: React.FC = () => {
       ) : (
         <>
           <TodoInput onAddTodo={addTodo} />
-          <TodoList todos={todos} onToggle={toggleTodo} onDelete={removeTodo} />
+          <TodoList todos={todos} onToggle={toggleTodo} onDelete={removeTodo} onEdit={updateTodo} />
 
           {todos.some((todo) => todo.completed) && (
             <View style={styles.footerContainer}>
