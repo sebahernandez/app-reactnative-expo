@@ -7,7 +7,7 @@
 **Tipo:** Aplicación Móvil Multiplataforma
 **Desarrollado con:** React Native + Expo + TypeScript
 **Fecha:** Diciembre 2025
-**Institución:** IPSS - Instituto Profesional de Sistemas de Software
+**Institución:** IPSS - Instituto Profesional San Sebastián
 
 ## 📖 Descripción General
 
