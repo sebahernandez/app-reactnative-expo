@@ -8,6 +8,8 @@
 **Desarrollado con:** React Native + Expo + TypeScript
 **Fecha:** Diciembre 2025
 **Institución:** IPSS - Instituto Profesional San Sebastián
+**Integrantes:** Sebastián Lagos - María Jose Reichel 
+**Rol de integrantes:** Sebastian Lagos (Arquitectura de software y servicios) - María Jose Reichel(Frontend)
 
 ## 📖 Descripción General
 
