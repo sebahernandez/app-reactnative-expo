@@ -18,7 +18,7 @@ export const TodoApp: React.FC = () => {
     clearCompleted,
     getTotalCount,
     getCompletedCount,
-  } = useTodos(user?.username || '');
+  } = useTodos(user?.name|| '');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -43,7 +43,7 @@ export const TodoApp: React.FC = () => {
         <ThemedText style={styles.subtitle}>
           {getCompletedCount()} / {getTotalCount()} completados
         </ThemedText>
-        <ThemedText style={styles.userInfo}>Usuario: {user.username}</ThemedText>
+        <ThemedText style={styles.userInfo}>Usuario: {user.name}</ThemedText>
       </View>
 
       {isLoading ? (

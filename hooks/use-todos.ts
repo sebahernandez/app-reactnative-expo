@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getImageService } from '../services/image-service';
 import { getImageService as getImageSvc, getTodoService } from '../services';
-import type { Todo as ApiTodo, TodoLocation as ApiTodoLocation } from '../services';
 
 export interface TodoLocation {
   latitude: number;
@@ -34,7 +32,6 @@ export const useTodos = (currentUsername: string) => {
       const result = await todoService.getTodos();
 
       if (result.success && result.data) {
-        // Convertir TODOs de la API al formato del hook
         const mappedTodos: Todo[] = result.data.map((apiTodo) => ({
           id: apiTodo.id,
           title: apiTodo.title,
