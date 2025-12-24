@@ -9,7 +9,7 @@ interface TodoItemProps {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, title: string, imageUri?: string, location?: TodoLocation) => void;
+  onEdit: (id: string, title: string, photoUri?: string, location?: TodoLocation) => void;
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit }) => {
@@ -39,7 +39,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, on
           activeOpacity={1}
           onPress={() => setImageModalVisible(false)}>
           <Image
-            source={{ uri: todo.imageUri }}
+            source={{ uri: todo.photoUri }}
             style={styles.fullscreenImage}
             resizeMode="contain"
           />
@@ -56,9 +56,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, on
           },
         ]}>
         {/* Foto */}
-        {todo.imageUri && (
+        {todo.photoUri && (
           <TouchableOpacity onPress={() => setImageModalVisible(true)}>
-            <Image source={{ uri: todo.imageUri }} style={styles.image} />
+            <Image source={{ uri: todo.photoUri }} style={styles.image} />
           </TouchableOpacity>
         )}
 

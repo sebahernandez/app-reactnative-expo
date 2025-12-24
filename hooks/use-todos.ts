@@ -10,7 +10,6 @@ export interface TodoLocation {
 export interface Todo {
   id: string;
   title: string;
-  imageUri?: string;
   location?: TodoLocation;
   username: string;
   completed: boolean;
@@ -36,7 +35,6 @@ export const useTodos = (currentUsername: string) => {
           id: apiTodo.id,
           title: apiTodo.title,
           completed: apiTodo.completed,
-          imageUri: apiTodo.photoUri,
           photoUri: apiTodo.photoUri,
           location: apiTodo.location,
           username: currentUsername,
@@ -64,27 +62,27 @@ export const useTodos = (currentUsername: string) => {
   }, [loadTodos]);
 
   const addTodo = useCallback(
-    async (title: string, imageUri?: string, location?: TodoLocation) => {
+    async (title: string, photoUri?: string, location?: TodoLocation) => {
       if (title.trim() === '') return;
 
       try {
         console.log('[useTodos] Creando nueva tarea...');
 
-        let photoUri = imageUri;
+        let uploadedPhotoUri = photoUri;
 
         // Si hay una imagen, subirla primero
-        if (imageUri) {
+        if (photoUri) {
           console.log('[useTodos] Subiendo imagen...');
           const imageService = getImageSvc();
-          const uploadResult = await imageService.uploadImage(imageUri);
+          const uploadResult = await imageService.uploadImage(photoUri);
 
           if (uploadResult.success && uploadResult.imageUrl) {
-            photoUri = uploadResult.imageUrl;
-            console.log('[useTodos] Imagen subida:', photoUri);
+            uploadedPhotoUri = uploadResult.imageUrl;
+            console.log('[useTodos] Imagen subida:', uploadedPhotoUri);
           } else {
             console.error('[useTodos] Error al subir imagen:', uploadResult.error);
             // Continuar sin imagen si falla la subida
-            photoUri = undefined;
+            uploadedPhotoUri = undefined;
           }
         }
 
@@ -93,7 +91,7 @@ export const useTodos = (currentUsername: string) => {
           title: title.trim(),
           completed: false,
           location: location ? { latitude: location.latitude, longitude: location.longitude } : undefined,
-          photoUri,
+          photoUri: uploadedPhotoUri,
         });
 
         if (result.success && result.data) {
@@ -111,21 +109,21 @@ export const useTodos = (currentUsername: string) => {
   );
 
   const updateTodo = useCallback(
-    async (id: string, title?: string, imageUri?: string, location?: TodoLocation) => {
+    async (id: string, title?: string, photoUri?: string, location?: TodoLocation) => {
       try {
         console.log(`[useTodos] Actualizando tarea ${id}...`);
 
-        let photoUri: string | undefined = undefined;
+        let uploadedPhotoUri: string | undefined = undefined;
 
         // Si hay una nueva imagen, subirla primero
-        if (imageUri) {
+        if (photoUri) {
           console.log('[useTodos] Subiendo nueva imagen...');
           const imageService = getImageSvc();
-          const uploadResult = await imageService.uploadImage(imageUri);
+          const uploadResult = await imageService.uploadImage(photoUri);
 
           if (uploadResult.success && uploadResult.imageUrl) {
-            photoUri = uploadResult.imageUrl;
-            console.log('[useTodos] Nueva imagen subida:', photoUri);
+            uploadedPhotoUri = uploadResult.imageUrl;
+            console.log('[useTodos] Nueva imagen subida:', uploadedPhotoUri);
           } else {
             console.error('[useTodos] Error al subir nueva imagen:', uploadResult.error);
           }
@@ -135,7 +133,7 @@ export const useTodos = (currentUsername: string) => {
         const updateData: any = {};
 
         if (title !== undefined) updateData.title = title.trim();
-        if (photoUri !== undefined) updateData.photoUri = photoUri;
+        if (uploadedPhotoUri !== undefined) updateData.photoUri = uploadedPhotoUri;
         if (location !== undefined) {
           updateData.location = { latitude: location.latitude, longitude: location.longitude };
         }
@@ -188,8 +186,6 @@ export const useTodos = (currentUsername: string) => {
           console.error('[useTodos] Tarea no encontrada');
           return;
         }
-
-        // Actualizar el estado local inmediatamente para mejor UX
         setTodos((prevTodos) =>
           prevTodos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
         );
@@ -203,7 +199,7 @@ export const useTodos = (currentUsername: string) => {
           console.log('[useTodos] Tarea actualizada exitosamente');
         } else {
           console.error('[useTodos] Error al actualizar tarea:', result.error);
-          // Revertir el cambio local si falla
+
           setTodos((prevTodos) =>
             prevTodos.map((t) => (t.id === id ? { ...t, completed: todo.completed } : t))
           );

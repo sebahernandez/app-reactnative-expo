@@ -7,7 +7,7 @@ interface TodoListProps {
   todos: Todo[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, title: string, imageUri?: string, location?: TodoLocation) => void;
+  onEdit: (id: string, title: string, photoUri?: string, location?: TodoLocation) => void;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete, onEdit }) => {

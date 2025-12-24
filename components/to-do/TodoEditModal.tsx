@@ -5,14 +5,14 @@ import { pickImageFromCamera, pickImageFromGallery } from '@/utils/imageHandler'
 import { getCurrentLocation } from '@/utils/locationHandler';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 interface TodoEditModalProps {
@@ -40,7 +40,7 @@ export const TodoEditModal: React.FC<TodoEditModalProps> = ({
   useEffect(() => {
     if (todo && visible) {
       setTitle(todo.title);
-      setImageUri(todo.imageUri || todo.photoUri || null);
+      setImageUri(todo.photoUri || null);
       setLocation(todo.location || null);
       setImageChanged(false);
     }
