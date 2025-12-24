@@ -1,8 +1,8 @@
-# Eva1 Móvil - Sistema de Gestión de Tareas
+# Exámen Móvil - Sistema de Gestión de Tareas
 
 ## 📋 Información del Proyecto
 
-**Nombre:** Eva 3 <br>
+**Nombre:** Exámen <br>
 **Versión:** 1.0.0 <br>
 **Tipo:** Aplicación Móvil Multiplataforma <br>
 **Desarrollado con:** React Native + Expo + TypeScript <br>
